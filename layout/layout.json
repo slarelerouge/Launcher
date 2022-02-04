@@ -1,0 +1,41 @@
+{
+    "Animation": {},
+    "Art": {},
+    "TechArt": {
+        "Button1": {
+            "class": "button",
+            "position": [
+                0,
+                30
+            ],
+            "size": [
+                200,
+                35
+            ],
+            "target": ""
+        },
+		"Button2": {
+            "class": "button",
+            "position": [
+                0,
+                70
+            ],
+            "size": [
+                200,
+                35
+            ],
+            "target": "test.bat"
+        },
+		"Label1": {
+			"class": "label",
+			"position": [
+                0,
+                0
+            ],
+            "size": [
+                200,
+                35
+            ]
+		}
+    }
+}
