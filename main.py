@@ -1,12 +1,16 @@
 """
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
+version.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>. 3
+You should have received a copy of the GNU General Public License along with this program.
+If not, see <https://www.gnu.org/licenses/>. 3
 """
 
-#!/usr/bin/python3
+# !/usr/bin/python3
 # -*- coding : utf-8 -*-
 
 # IMPORT
@@ -15,22 +19,22 @@ import json
 import subprocess
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
+import themes
 
 
 # CLASS
 
 # Main window creation from layout data
-class MainWindow( QMainWindow ):
-    
-    def __init__ (self, _layout_data) :
+class MainWindow(QMainWindow):
+    def __init__(self, _layout_data):
         # Window settings
         QMainWindow.__init__(self)
-        self.setWindowTitle( 'Launcher' )
+        self.setWindowTitle('Launcher')
         self.setWindowIcon(QIcon('icon.png'))
         
         # Resize window
         self.resize(400, 300)
-        
+
         # UI Dressing
         self._layout_data = _layout_data
         self._tabs = QTabWidget(self)
@@ -39,6 +43,7 @@ class MainWindow( QMainWindow ):
         ## Tabs
         ### Resize
         self._tabs.resize(300, 200)
+
         ### Fill in
         for tab_name in self._layout_data:
             tab_layout_data = self._layout_data[tab_name]
@@ -56,7 +61,6 @@ class MainWindow( QMainWindow ):
 
 # Tab creation from layout data
 class Tab:
-
     def __init__(self, tab_layout_data):
         self._tab_layout_data = tab_layout_data
 
@@ -99,12 +103,12 @@ class Tab:
         label = QLabel(ui_item_name, self.tab)
         
         # Resize and position
-        args = ui_item["position"]+ui_item["size"]
+        args = ui_item["position"] + ui_item["size"]
         label.setGeometry(*args)
-        
-    
+
+
 # CORE
-if __name__ == "__main__" :
+if __name__ == "__main__":
     # Import window layout
     with open('layout/layout.json') as json_file:
         _layout_data = json.load(json_file)
@@ -112,7 +116,10 @@ if __name__ == "__main__" :
     # Qapp thingy
     app = QApplication(sys.argv)
 
-    #Start window
+    # To set dark theme uncomment line below
+    # themes.dark.set_dark_theme(app)
+
+    # Start window
     MainWindow = MainWindow(_layout_data)
     MainWindow.show()
     
