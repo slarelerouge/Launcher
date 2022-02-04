@@ -11,13 +11,13 @@ You should have received a copy of the GNU General Public License along with thi
 
 # IMPORT
 import sys
+import json
 import subprocess
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
-import json
 
 
-#CLASS
+# CLASS
 class MainWindow( QMainWindow ):
     
     def __init__ (self, _layout_data) :
@@ -40,8 +40,8 @@ class MainWindow( QMainWindow ):
         ### Fill in
         for tab_name in self._layout_data:
             tab_layout_data = self._layout_data[tab_name]
-            tab = Tab(tab_layout_data)
-            self._tabs.addTab(tab.tab, tab_name)
+            tab = Tab(tab_layout_data).tab
+            self._tabs.addTab(tab, tab_name)
              
         ## Scheduling
         ### Resize
@@ -59,14 +59,17 @@ class Tab():
         self.tab = QWidget()
         self.tab_layout_data = tab_layout_data
         
-        # Create UI creation catalog
-        create_ui = {"button": self.create_button, "label": self.create_label}
+        # Create UI creation function catalog
+        self.ui_item_catalog = {"button": self.create_button, "label": self.create_label}
         
         # Create every UI item
         for ui_item_name in tab_layout_data:
             ui_item_class = tab_layout_data[ui_item_name]["class"]
-            create_ui[ui_item_class](ui_item_name)
-            
+            self.create_ui_item(ui_item_name, ui_item_class)
+
+    def create_ui_item(self, ui_item_name, ui_item_class):
+        self.ui_item_catalog[ui_item_class](ui_item_name)
+
     def create_button(self, ui_item_name):
         # UI Dressing
         ui_item = self.tab_layout_data[ui_item_name]
@@ -92,7 +95,7 @@ class Tab():
 # CORE
 if __name__ == "__main__" :
     # Import window layout
-    with open('layout.json') as json_file:
+    with open('layout/layout.json') as json_file:
         _layout_data = json.load(json_file)
     
     # Qapp thingy
