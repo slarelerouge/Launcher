@@ -1,3 +1,4 @@
 
 .idea/*
 start.bat
+__pycache__/
