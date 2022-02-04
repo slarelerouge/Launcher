@@ -18,6 +18,8 @@ from PySide2.QtWidgets import *
 
 
 # CLASS
+
+# Main window creation from layout data
 class MainWindow( QMainWindow ):
     
     def __init__ (self, _layout_data) :
@@ -50,9 +52,10 @@ class MainWindow( QMainWindow ):
         label = QLabel("Scheduling", self._scheduling)
         frame = QFrame(self._scheduling)
         frame.setFrameShape(QFrame.StyledPanel)
-        
-       
-class Tab():
+
+
+# Tab creation from layout data
+class Tab:
 
     def __init__(self, tab_layout_data):
         self._tab_layout_data = tab_layout_data
@@ -68,12 +71,15 @@ class Tab():
             ui_item_class = tab_layout_data[ui_item_name]["class"]
             self.create_ui_item(ui_item_name, ui_item_class)
 
+    # Returns the actual tab QWidget
     def get_tab(self):
         return self.tab
 
+    # Create the ui_item corresponding to the ui_item_class
     def create_ui_item(self, ui_item_name, ui_item_class):
         self._ui_item_catalog[ui_item_class](ui_item_name)
 
+    # Create a button in the tab from the layout data corresponding to the ui_item_name
     def create_button(self, ui_item_name):
         # UI Dressing
         ui_item = self._tab_layout_data[ui_item_name]
@@ -85,7 +91,8 @@ class Tab():
         
         # Set click interaction
         button.clicked.connect(lambda: subprocess.call([ui_item["target"]]))
-    
+
+    # Create a label in the tab from the layout data corresponding to the ui_item_name
     def create_label(self, ui_item_name):
         # UI Dressing
         ui_item = self._tab_layout_data[ui_item_name]
