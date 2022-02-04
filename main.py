@@ -40,7 +40,7 @@ class MainWindow( QMainWindow ):
         ### Fill in
         for tab_name in self._layout_data:
             tab_layout_data = self._layout_data[tab_name]
-            tab = Tab(tab_layout_data).tab
+            tab = Tab(tab_layout_data).get_tab()
             self._tabs.addTab(tab, tab_name)
              
         ## Scheduling
@@ -55,24 +55,28 @@ class MainWindow( QMainWindow ):
 class Tab():
 
     def __init__(self, tab_layout_data):
+        self._tab_layout_data = tab_layout_data
+
         # UI dressing
         self.tab = QWidget()
-        self.tab_layout_data = tab_layout_data
         
         # Create UI creation function catalog
-        self.ui_item_catalog = {"button": self.create_button, "label": self.create_label}
+        self._ui_item_catalog = {"button": self.create_button, "label": self.create_label}
         
         # Create every UI item
         for ui_item_name in tab_layout_data:
             ui_item_class = tab_layout_data[ui_item_name]["class"]
             self.create_ui_item(ui_item_name, ui_item_class)
 
+    def get_tab(self):
+        return self.tab
+
     def create_ui_item(self, ui_item_name, ui_item_class):
-        self.ui_item_catalog[ui_item_class](ui_item_name)
+        self._ui_item_catalog[ui_item_class](ui_item_name)
 
     def create_button(self, ui_item_name):
         # UI Dressing
-        ui_item = self.tab_layout_data[ui_item_name]
+        ui_item = self._tab_layout_data[ui_item_name]
         button = QPushButton(ui_item_name, self.tab)
         
         # Resize and position
@@ -84,7 +88,7 @@ class Tab():
     
     def create_label(self, ui_item_name):
         # UI Dressing
-        ui_item = self.tab_layout_data[ui_item_name]
+        ui_item = self._tab_layout_data[ui_item_name]
         label = QLabel(ui_item_name, self.tab)
         
         # Resize and position
