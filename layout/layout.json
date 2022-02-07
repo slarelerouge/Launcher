@@ -1,41 +1,40 @@
 {
     "Animation": {},
+    "Design": {},
     "Art": {},
     "TechArt": {
-        "Button1": {
+        "Software 1": {
+			"class": "label"
+		},
+        "Action 1": {
             "class": "button",
-            "position": [
-                0,
-                30
-            ],
-            "size": [
-                200,
-                35
-            ],
-            "target": ""
+            "target": "test_targets/test.bat"
         },
-		"Button2": {
+		"Action 2": {
             "class": "button",
-            "position": [
-                0,
-                70
-            ],
-            "size": [
-                200,
-                35
-            ],
-            "target": "test.bat"
+            "target": "test_targets/test2.bat"
         },
-		"Label1": {
-			"class": "label",
-			"position": [
-                0,
-                0
-            ],
-            "size": [
-                200,
-                35
-            ]
-		}
+		"Software 2": {
+			"class": "label"
+		},
+        "Button3": {
+            "class": "button",
+            "target": "test_targets/test1.bat"
+        },
+		"Button4": {
+            "class": "button",
+            "target": "test_targets/test2.bat"
+        },
+		"Software 3": {
+			"class": "label"
+		},
+        "Button5": {
+            "class": "button",
+            "target": "test_targets/test1.bat"
+        },
+		"Button6": {
+            "class": "button",
+            "target": "test_targets/test2.bat"
+        }
     }
 }
