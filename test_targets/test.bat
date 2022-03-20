@@ -1,2 +1,2 @@
-print "truc"
+echo "truc"
 pause

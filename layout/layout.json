@@ -12,7 +12,7 @@
                 200,
                 35
             ],
-            "target": ""
+            "target": "/test_targets/test.bat"
         },
 		"Button2": {
             "class": "button",
@@ -24,7 +24,7 @@
                 200,
                 35
             ],
-            "target": "test.bat"
+            "target": "/test_targets/test2.bat"
         },
 		"Label1": {
 			"class": "label",
