@@ -110,7 +110,7 @@ class MainWindow(QMainWindow):
     def _deselect(self):
         print(self.selected)
         try:
-            self.list_w.addItem(self.selected.text())
+            #self.list_w.addItem(self.selected.text())
             self.selected = None
         except:
             pass
@@ -328,14 +328,18 @@ class DynButton(QPushButton):
         self.clicked.connect(lambda: subprocess.call([self._call]))
 
     def set_select(self):
-        self.clicked.disconnect()
-        self.set_call()
+        try:
+            self.clicked.disconnect()
+        except:
+            pass
         self.clicked.connect(lambda: self._be_selected())
+        #self.set_call()
 
     def _be_selected(self):
-        self.parent().parent().parent().parent().parent().selected = self
-        self.parent().parent().parent().parent().parent().add_schedule_task()
-        self.parent().parent().parent().parent().parent().set_call()
+        main_window = self.parent().parent().parent().parent().parent()
+        main_window.selected = self
+        main_window.add_schedule_task()
+        main_window.set_call()
 
 
 class DynLabel():
