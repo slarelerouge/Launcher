@@ -18,10 +18,8 @@ import sys
 import json
 import subprocess
 from PySide2.QtCore import *
-from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 import themes.dark
-import schedule
 
 
 # CLASS
@@ -34,86 +32,29 @@ class MainWindow(QMainWindow):
         # Window settings
         QMainWindow.__init__(self)
         self.setWindowTitle('Launcher')
-        self.setWindowIcon(QIcon('icon.png'))
-
-        self.selected = None
+        #self.setWindowIcon(QIcon('icon.png'))
         
         # Resize main window
-        self.resize(400, 300)
+        self.resize(500, 400)
 
         # Create main group and main layout
-        self.main_group = QGroupBox("launcher", self)
-        self.main_layout = QVBoxLayout()
-        self.main_group.setLayout(self.main_layout)
+        self._main_layout = QVBoxLayout()
+        self._main_group = QGroupBox(self)
+        self._main_group.setLayout(self._main_layout)
 
         # Create tab holder
         self._tabs = QTabWidget()
         # Layout filling
-        self.main_layout.addWidget(self._tabs)
+        self._main_layout.addWidget(self._tabs)
         # Fill in tabs
         for tab_name in self._layout_data:
             tab_layout_data = self._layout_data[tab_name]
             tab = Tab(tab_layout_data)
             self._tabs.addTab(tab, tab_name)
 
-        self._scheduling_group = Scheduler()
-        self.main_layout.addWidget(self._scheduling_group)
-
-        """# Create schedule group and schedule layout
-        self._scheduling_group = QGroupBox("Scheduler", self)
-        self._schedule_layout = QHBoxLayout()
-        self._scheduling_group.setLayout(self._schedule_layout)
-        # Layout filling
-        self.main_layout.addWidget(self._scheduling_group)
-        # Fill in schedule
-        # Time group and layout
-        self.time_group = QGroupBox(self)
-        self.time_layout = QVBoxLayout()
-        self.time_group.setLayout(self.time_layout)
-        self._schedule_layout.addWidget(self.time_group)
-        #
-        date_edit = QDateTimeEdit(QDate.currentDate())
-        date_edit.setMinimumDate(QDate.currentDate().addDays(-365))
-        date_edit.setMaximumDate(QDate.currentDate().addDays(365))
-        date_edit.setDisplayFormat("yyyy.MM.dd")
-        #
-        time_edit = QDateTimeEdit(QTime.currentTime())
-        #
-        self.time_layout.addWidget(date_edit)
-        self.time_layout.addWidget(time_edit)
-        #
-        self.buttons_group = QGroupBox(self)
-        self.buttons_layout = QVBoxLayout()
-        self.buttons_group.setLayout(self.buttons_layout)
-        self._schedule_layout.addWidget(self.buttons_group)
-        #
-        occurrence_choice = QComboBox()
-        occurrence_choice.addItems(["Once", "Every Day", "Every Week"])
-        self.buttons_layout.addWidget(occurrence_choice)
-        #
-        self.list_w = QListWidget()
-        #self.list_w.addItem("test")
-        #self.list_w.addItem("test2")
-        self.list_w_group = QGroupBox(self)
-        self.list_w_layout = QHBoxLayout()
-        self.list_w_group.setLayout(self.list_w_layout)
-        self.list_w_layout.addWidget(self.list_w)
-        self._schedule_layout.addWidget(self.list_w)
-        #
-        select_button = QPushButton("Select Task")
-        self.buttons_layout.addWidget(select_button)
-        select_button.clicked.connect(lambda: self.set_select())
-        add_button = QPushButton("Add To Schedule")
-        self.buttons_layout.addWidget(add_button)
-        add_button.clicked.connect(lambda: self._deselect())"""
-
-    def _deselect(self):
-        print(self.selected)
-        try:
-            #self.list_w.addItem(self.selected.text())
-            self.selected = None
-        except:
-            pass
+        # Scheduler
+        self.scheduler = Scheduler()
+        self._main_layout.addWidget(self.scheduler)
 
     def set_select(self):
         for child in self._tabs.children():
@@ -128,7 +69,7 @@ class MainWindow(QMainWindow):
                     child3.set_call()
 
     def resizeEvent(self, event):
-        self.main_group.resize(self.size())
+        self._main_group.resize(self.size())
 
     def add_schedule_task(self):
         self._scheduling_group.add_schedule_task()
@@ -141,24 +82,36 @@ class Scheduler(QGroupBox):
 
         super().__init__(*args, **kwargs)
 
+        # Schedule dict
+        self._dict = {}
+
+        # Set as scheduler to be accessed from anywhere
+        global scheduler
+        scheduler = self
+
+        #
+        self.setTitle("Scheduler")
+
         # Set layout to self
         self._schedule_layout = QHBoxLayout()
         self.setLayout(self._schedule_layout)
 
         # Schedule list buttons
-        self.schedule_lst_button_layout = QVBoxLayout()
-        self.schedule_list_button_group = QGroupBox(self)
-        self.schedule_list_button_group.setLayout(self.schedule_lst_button_layout)
+        self.schedule_list_button_layout = QVBoxLayout()
+        self.schedule_list_button_group = QGroupBox()
+        self.schedule_list_button_group.setLayout(self.schedule_list_button_layout)
         #
+        self.schedule_name_label = QLabel("Schedule Name")
+        self.schedule_list_button_layout.addWidget(self.schedule_name_label)
         self.schedule_name = QLineEdit()
-        self.schedule_lst_button_layout.addWidget(self.schedule_name)
+        self.schedule_list_button_layout.addWidget(self.schedule_name)
         #
-        self.add_schedule_button = QPushButton("Create new")
-        self.schedule_lst_button_layout.addWidget(self.add_schedule_button)
-        self.add_schedule_button.clicked.connect(lambda: self._schedule_list.addItem(self.schedule_name.text()))
+        self.add_schedule_button = QPushButton("Create New")
+        self.schedule_list_button_layout.addWidget(self.add_schedule_button)
+        self.add_schedule_button.clicked.connect(lambda: self.create_schedule())
         #
         self.del_schedule_button = QPushButton("Delete")
-        self.schedule_lst_button_layout.addWidget(self.del_schedule_button)
+        self.schedule_list_button_layout.addWidget(self.del_schedule_button)
         self.del_schedule_button.clicked.connect(lambda: self._schedule_list.takeItem(self._schedule_list.currentRow()))
         #
         self._schedule_layout.addWidget(self.schedule_list_button_group)
@@ -166,6 +119,7 @@ class Scheduler(QGroupBox):
         # Add schedule list
         self._schedule_list = QListWidget()
         self._schedule_layout.addWidget(self._schedule_list)
+        self._schedule_list.            changeEvent(lambda: print("test"))
 
         # Schedule list occurrence
         #
@@ -173,7 +127,7 @@ class Scheduler(QGroupBox):
         self.occurrence_choice.addItems(["Once", "Every Day", "Every Week"])
         #
         self.schedule_list_occurrence_layout = QVBoxLayout()
-        self.schedule_list_occurrence_group = QGroupBox(self)
+        self.schedule_list_occurrence_group = QGroupBox()
         self.schedule_list_occurrence_group.setLayout(self.schedule_list_occurrence_layout)
         self.schedule_list_occurrence_group.setTitle("set occurrence")
         #
@@ -195,15 +149,15 @@ class Scheduler(QGroupBox):
         self._schedule_layout.addWidget(self._schedule_task_list)
         #
         self.schedule_task_list_button_layout = QVBoxLayout()
-        self.schedule_task_list_button_group = QGroupBox(self)
+        self.schedule_task_list_button_group = QGroupBox()
         self.schedule_task_list_button_group.setLayout(self.schedule_task_list_button_layout)
         #
-        self.select_button = QPushButton("Add Task")
-        self.schedule_task_list_button_layout.addWidget(self.select_button)
-        self.select_button.clicked.connect(lambda: self.set_select())
-        self.add_button = QPushButton("Remove Task")
+        self.add_button = QPushButton("Add Task")
         self.schedule_task_list_button_layout.addWidget(self.add_button)
-        self.add_button.clicked.connect(lambda: self._deselect())
+        self.add_button.clicked.connect(lambda: self.set_select())
+        self.remove_button = QPushButton("Remove Task")
+        self.schedule_task_list_button_layout.addWidget(self.remove_button)
+        self.remove_button.clicked.connect(lambda: self.remove_schedule_task())
         #
         self._schedule_layout.addWidget(self.schedule_task_list_button_group)
 
@@ -272,12 +226,34 @@ class Scheduler(QGroupBox):
         #self._schedule_task_list.addItem(self.parent().parent().selected.text())
         #self.self.parent().parent().selected = None
 
-    def add_schedule_task(self):
-        self._schedule_task_list.addItem(self.parent().parent().selected.text())
+    def add_schedule_task(self, button):
+        self._schedule_task_list.addItem(button.text())
         self.parent().parent().selected = None
+
+    def remove_schedule_task(self):
+        self._schedule_task_list.takeItem(self._schedule_task_list.currentRow())
 
     def set_call(self):
         self.parent().parent().set_call()
+
+    def create_schedule(self):
+        name = self.schedule_name.text()
+
+        if name not in self._dict:
+            self._schedule_list.addItem(self.schedule_name.text())
+        occurrence = self.occurrence_choice.currentText()
+        time = self.time_edit.time()
+        date = self.date_edit.date()
+        self._dict[name] = {"occurrence": occurrence, "time": time, "date": date}
+        print(self._dict)
+
+    def on_change_schedule_item(self):
+        selected = self._schedule_list.currentItem().text()
+        self.schedule_name.setText(selected)
+        #
+        self.occurrence_choice.setCurrentText(self._dict[selected]["occurrence"])
+        self.time_edit.setTime(self._dict[selected]["time"])
+        date = self.date_edit.setDate(self._dict[selected]["date"])
 
 
 # Tab creation from layout data
@@ -295,16 +271,6 @@ class Tab(QWidget):
             #ui_item_class = tab_layout_data[ui_item_name]["class"]
             #_ui_item_catalog[ui_item_class](self, ui_item_name)
 
-    def set_call(self):
-        for child in self.children():
-            if child.__class__ == DynButton:
-                child.set_call()
-
-    def set_select(self):
-        for child in self.children():
-            if child.__class__ == DynButton:
-                child.set_select()
-
 
 class DynButton(QPushButton):
     def __init__(self, button_layout_data, *args, **kwargs):
@@ -314,13 +280,10 @@ class DynButton(QPushButton):
         args = button_layout_data["position"] + button_layout_data["size"]
         self.setGeometry(*args)
         self._call = button_layout_data["target"]
-        print(self._call)
 
         self.set_call()
 
     def set_call(self):
-        #self.clicked.connect(lambda x=self.call: subprocess.call([x]))
-        #self.clicked.connect(lambda x=self.call: x)
         try:
             self.clicked.disconnect()
         except:
@@ -333,20 +296,33 @@ class DynButton(QPushButton):
         except:
             pass
         self.clicked.connect(lambda: self._be_selected())
-        #self.set_call()
 
     def _be_selected(self):
-        main_window = self.parent().parent().parent().parent().parent()
+        add_schedule_task(self)
+        """main_window = self.parent().parent().parent().parent().parent()
+        selected = self
         main_window.selected = self
         main_window.add_schedule_task()
-        main_window.set_call()
+        main_window.set_call()"""
 
 
 class DynLabel():
     def __init__(self):
         super(DynLabel, self).__init__()
 
+
 # FUNCTION
+def add_schedule_task(button):
+    scheduler.add_schedule_task(button)
+
+
+# VARIABLES
+
+scheduler = None
+
+
+# FUNCTIONS
+
 # Create a button in the tab from the layout data corresponding to the ui_item_name
 def _create_button(widget, ui_item_name):
     # UI Dressing
@@ -361,6 +337,7 @@ def _create_button(widget, ui_item_name):
     button.clicked.connect(lambda: subprocess.call([ui_item["target"]]))
 
     return button
+
 
 # Create a label in the tab from the layout data corresponding to the ui_item_name
 def _create_label(widget, ui_item_name):
@@ -391,5 +368,5 @@ if __name__ == "__main__":
     # Start window
     MainWindow = MainWindow(_layout_data)
     MainWindow.show()
-    
+
     sys.exit(app.exec_())
